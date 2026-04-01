@@ -1,56 +1,48 @@
-every doc and web dashboard is in chinese
+# Nifty Archives LNReader Plugin
 
-https://search.niftyarchives.org/?keywords=water&categories%5B%5D=gay&subcategories%5B%5D=adult-youth&sort=Relevance&search=
-Nifty Archive Search.html is the html for the search result page, above is the url for it.
+A plugin for [LNReader](https://github.com/LNReader/lnreader) that allows users to search and read novels from Nifty Archives.
 
-https://search.niftyarchives.org/?keywords=water&categories%5B0%5D=gay&subcategories%5B0%5D=adult-youth&sort=Relevance&search=&page=2
-Nifty Archive Search Page 2.html is the html for the 2nd page of search result page
+## Website Structure
 
-bookSourceEditConfig.js
-bookSourceEditConfig.js contain the setting name and it's chinese display name in the ui
+- **Search Site:** https://search.niftyarchives.org/ (provides search results and book listings)
+- **Content Site:** https://www.nifty.org/ (hosts actual chapter content)
+- **Two URL patterns:**
+  - Multi-chapter books: `/nifty/[category]/[title]/` (index page with chapter links)
+  - Single-chapter books: `/nifty/[category]/[title]` (direct chapter content)
 
-http://192.168.1.71:1122/vue/index.html#/bookSource is the address for the web ui that can add and test book source
+## Plugin Development
 
-新起点legado书源example.json
-this is a working example of what the config should look like, it's little long because it have lots of site in it.
+This plugin implements the lnreader Plugin API with the following core functions:
 
-书源规则：从入门到入土.html
-this is a tutorial for writing book source. 
+### 1. **searchNovels(searchTerm, page)**
+- Query search.niftyarchives.org with search keywords
+- Parse search results to extract novel metadata (title, author, cover, etc.)
+- Support pagination
 
-url on web: https://www.nifty.org/nifty/gay/adult-youth/ash-cloud/  /  file name in I upload: adult-youth_ash-cloud.html
-adult-youth_ash-cloud.html is one of the search result that have multiple chapter. It a page with multiple links to said chapter. 
+### 2. **popularNovels(page, options)**
+- Implement category-based discovery (without search terms)
+- Use URL: `https://search.niftyarchives.org/?keywords=&categories[]=gay&subcategories[]=adult-youth&sort=Newest`
+- Support filtering by categories and subcategories
 
-https://www.nifty.org/nifty/gay/adult-youth/ash-cloud/ash-cloud-1
-ash-cloud-1.html html when you click the link to the first chapter.
+### 3. **parseNovelAndChapters(novelUrl)**
+- Handle both single-chapter and multi-chapter book URL structures
+- For multi-chapter books: parse the index page to extract chapter list
+- For single-chapter books: treat the page as both index and content
+- Extract novel metadata (title, author, summary, etc.)
 
-https://www.nifty.org/nifty/gay/adult-youth/swim-at-the-junction
-swim-at-the-junction.html is the page for the result that only have one chapter. 
+### 4. **parseChapter(chapterUrl)**
+- Extract chapter content from nifty.org pages
+- **Important:** Clean hard line breaks/word wrapping:
+  - Real line breaks are blank lines
+  - Fake word wraps have letters immediately on left and right
+  - Join lines that are just word-wrapped text
+- Return clean HTML content
 
-booksource_example_tt1069-webview.json and booksource_example_tt1069-pua.json are working example of book source config
+## Special Considerations
 
-https://github.com/gedoor/legado is link to the source code of the reader app itself
+1. **Dual-site parsing:** Search results come from archives.org, but actual content is served from nifty.org
+2. **URL transformation:** May need to convert archive.org search results into nifty.org content URLs
+3. **Content cleaning:** The extracted text has hard-coded line breaks that need to be removed
+4. **Category system:** Support category and subcategory filtering for discovery
 
-https://github.com/gedoor/legado_web_bookshelf is the web reader
-
-https://github.com/gedoor/legado_web_source_editor is the web book source editor
-
-Observation: 
-single chapter book and multi chapter book have different url structure.
-search.niftyarchives.org gives search result, nifty.org host the book. there is two web site involved.
-
-goal: 
-help the user write settings in the legado书源管理webui. after outputting json, also give the chinese name that match the webui for each setting.
-
-Let's get everything working
-搜索 tab should be simple.
-
-发现 should just be the category without search word and newest sort, url: https://search.niftyarchives.org/?keywords=&categories%5B%5D=gay&subcategories%5B%5D=adult-youth&sort=Newest&search=
-
-info needed for 详情 should be in search result page(ie. Nifty Archive Search.html Nifty Archive Search Page2.html)
-
-目录 should accommodate single and multi chapter book.
-
-正文规则 need special treatment, Nifty Archive Search Page(search.niftyarchives.org)'s result leads to nifty.org.
-
-And Don't add [] on the root level, the root level should be the {}
-
+## File Structure
