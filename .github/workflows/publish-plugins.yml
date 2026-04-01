@@ -1,4 +1,4 @@
-name: Build and Publish Plugins
+name: Build and Publish Plugins.
 
 permissions:
   contents: write
