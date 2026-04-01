@@ -1,5 +1,8 @@
 name: Build and Publish Plugins
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -16,6 +19,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.REPO_SCOPED_TOKEN || github.token }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
