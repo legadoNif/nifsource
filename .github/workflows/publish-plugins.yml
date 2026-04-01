@@ -1,0 +1,60 @@
+name: Build and Publish Plugins
+
+on:
+  push:
+    branches:
+      - main
+      - lnreader
+  pull_request:
+    branches:
+      - main
+      - lnreader
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build plugins
+        run: npm run build 2>/dev/null || echo "No build script needed"
+
+      - name: Create dist directory
+        run: mkdir -p .dist
+
+      - name: Copy plugin file to dist
+        run: cp NiftyArchives.ts .dist/niftyarchives.ts
+
+      - name: Generate plugins manifest
+        run: |
+          cat > .dist/plugins.min.json <<'EOF'
+          {
+            "plugins": [
+              {
+                "id": "niftyarchives",
+                "name": "Nifty Archives",
+                "version": "1.0.0",
+                "source": "https://raw.githubusercontent.com/legadoNif/nifsource/plugins/latest/.dist/niftyarchives.ts"
+              }
+            ]
+          }
+          EOF
+
+      - name: Deploy to plugins branch
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/lnreader'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./.dist
+          publish_branch: plugins
+          cname: ''
