@@ -1,0 +1,45 @@
+{
+  "bookSourceComment": "Nifty Archive (gay/adult-youth) Legado 书源。搜索/发现走 search.niftyarchives.org，详情/目录/正文走 nifty.org。",
+  "bookSourceGroup": "Nifty",
+  "bookSourceName": "Nifty Gay Adult-Youth",
+  "bookSourceType": 0,
+  "bookSourceUrl": "https://search.niftyarchives.org",
+  "bookUrlPattern": "https?://(www\\.)?nifty\\.org/nifty/gay/adult-youth/.*",
+  "enabled": true,
+  "enabledExplore": true,
+  "header": "{}",
+  "searchUrl": "https://search.niftyarchives.org/?keywords={{key}}&categories%5B%5D=gay&subcategories%5B%5D=adult-youth&sort=Relevance&search=&page={{page}}",
+  "exploreUrl": "adult-youth 最新::https://search.niftyarchives.org/?keywords=&categories%5B%5D=gay&subcategories%5B%5D=adult-youth&sort=Newest&search=&page={{page}}",
+  "ruleSearch": {
+    "bookList": "table.results > tbody > tr:has(td > a[style*=font-size])",
+    "name": "td > a[style*=font-size]@text",
+    "bookUrl": "td > a[style*=font-size]@href",
+    "kind": "td .label@text##\\s+&&",
+    "lastChapter": "td:eq(1)@text",
+    "intro": "name"
+  },
+  "ruleExplore": {
+    "bookList": "table.results > tbody > tr:has(td > a[style*=font-size])",
+    "name": "td > a[style*=font-size]@text",
+    "bookUrl": "td > a[style*=font-size]@href",
+    "kind": "td .label@text##\\s+&&",
+    "lastChapter": "td:eq(1)@text",
+    "intro": "name"
+  },
+  "ruleBookInfo": {
+    "name": "name",
+    "kind": "kind",
+    "lastChapter": "lastChapter",
+    "intro": "intro",
+    "tocUrl": "bookUrl"
+  },
+  "ruleToc": {
+    "chapterList": "@js:\n(function () {\n  var html = String(result || '');\n  var base = String((book && (book.tocUrl || book.bookUrl)) || (typeof baseUrl !== 'undefined' ? baseUrl : '') || '');\n  var cleanBase = base.replace(/,\\s*\\{[\\s\\S]*$/, '');\n\n  if (/Chronological Directory Listing/i.test(html)) {\n    var out = [];\n    var reg = /<tr>\\s*<td[^>]*>[^<]*<\\/td>\\s*<td[^>]*>[^<]*<\\/td>\\s*<td>\\s*<a[^>]*href=\"([^\"]+)\"[^>]*>([^<]+)<\\/a>/gi;\n    var m;\n    while ((m = reg.exec(html)) !== null) {\n      var href = m[1];\n      var title = m[2];\n      var abs = /^https?:/i.test(href) ? href : cleanBase.replace(/\\/?$/, '/') + href.replace(/^\\//, '');\n      out.push({ title: String(title).trim(), url: abs });\n    }\n    return out;\n  }\n\n  var title = String((book && book.name) || '').trim();\n  if (!title) {\n    var subject = html.match(/Subject:\\s*([^\\n\\r]+)/i);\n    title = subject ? String(subject[1]).trim() : 'Chapter 1';\n  }\n  return [{ title: title || 'Chapter 1', url: cleanBase }];\n})();",
+    "chapterName": "title",
+    "chapterUrl": "url"
+  },
+  "ruleContent": {
+    "content": "pre@text"
+  },
+  "weight": 0
+}
